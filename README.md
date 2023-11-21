@@ -37,17 +37,17 @@ To play Minesweeper, follow these steps:
 4. **Enjoy the Game**
 Customize the board size and bomb count, click on squares, and try to reveal all non-bomb squares without triggering a bomb!
 
-**Dependencies**
+## Dependencies
 GTK+ 3.0: Make sure to have GTK+ 3.0 installed on your system.
 
 mpg123: Required for playing audio files. Please download and install it before running the game.
 
-**Contributing**
+## Contributing
 If you'd like to contribute to Minesweeper, feel free to open issues or submit pull requests. Your feedback and improvements are highly appreciated.
 
 ## License
 This Minesweeper implementation is licensed under the [MIT License](LICENSE).
 
 
-**Acknowledgments**
+## Acknowledgments
 Feel free to customize the content further based on your preferences and additional information you want to include.
