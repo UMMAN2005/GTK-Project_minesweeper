@@ -1,0 +1,12 @@
+.area_button {
+    background-image: none;
+    background-color: rgb(0, 255, 81);
+    padding: 0px;
+}
+
+.area_button label {
+    font-size: 28px;
+    background-color: cyan;
+    color: darkslateblue;
+}
+
