@@ -7,10 +7,9 @@
 #include <string.h>
 #include <time.h>
 #include <glib.h>
+#include <ctype.h>
 
-// Function declarations
-void buttonClicked(GtkWidget* widget, gpointer userData);
-void buttonClicked(GtkWidget* widget, gpointer userData);
+void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData);
 void activate(GtkApplication* app, gpointer userData);
 void revealSquare(int row, int col);
 void revealAllBombs();
@@ -25,7 +24,8 @@ void showInfoDialog(const char* infoMessage);
 void restartGame();
 void quitApplication();
 void setColor(GtkWidget*** widgets, gpointer userData);
+void checkWin();
 void cleanup();
-void buttonRightClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData);
+
 
 #endif // APP_H

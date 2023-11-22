@@ -4,16 +4,18 @@
 GtkWidget*** buttons;
 GtkApplication* app;
 int restartCount = 0;
-int N, M, B;
+int N, M, B, F, U, R;
 int** board;
 int* bombsArray;
+clock_t startTime;
+clock_t endTime;
 GtkCssProvider* cssProvider = NULL;
+GtkWidget* grid;
 
 struct ThreadData {
     const char* mp3FilePath;
 };
 
-// Sound files and commands
 const char* mpg123Path = "C:\\Users\\user\\Desktop\\TOOLS\\mpg123-1.32.3-static-x86-64\\mpg123.exe";
 const char* mp3FilePath_1 = ".\\Audio_files\\-1.mp3";
 const char* mp3FilePath0 = ".\\Audio_files\\0.mp3";
@@ -25,22 +27,48 @@ const char* mp3FilePath5 = ".\\Audio_files\\5.mp3";
 const char* mp3FilePath6 = ".\\Audio_files\\6.mp3";
 const char* mp3FilePath7 = ".\\Audio_files\\7.mp3";
 const char* mp3FilePath8 = ".\\Audio_files\\8.mp3";
+const char* mp3FilePathFlag = ".\\Audio_files\\flag.mp3";
+const char* mp3FilePathUnFlag = ".\\Audio_files\\unflag.mp3";
+const char* mp3FilePathWin = ".\\Audio_files\\win.mp3";
 
-void buttonClicked(GtkWidget* widget, gpointer userData) {
+void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData) {
     int index = GPOINTER_TO_INT(userData);
     int row = index / M;
     int col = index % M;
 
-    revealSquare(row, col);
+    GtkStyleContext* context = gtk_widget_get_style_context(widget);
+
+    if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
+        if (gtk_style_context_has_class(context, "right-clicked")) {
+            gtk_style_context_remove_class(context, "right-clicked");
+            playAudio(mp3FilePathUnFlag);
+            F++;
+        } else {
+            if (F > 0) {
+                gtk_style_context_add_class(context, "right-clicked");
+                playAudio(mp3FilePathFlag);
+                F--;
+            }
+        }
+        GtkWidget* label = GTK_WIDGET(gtk_grid_get_child_at(GTK_GRID(grid), 0, 0));
+        gtk_label_set_text(GTK_LABEL(label), g_strdup_printf("📕 %d  📖 %d  🚩 %d", U, R, F));
+    } else if (event->type == GDK_BUTTON_PRESS && event->button == 1) {
+        if (!gtk_style_context_has_class(context, "right-clicked")) {
+            revealSquare(row, col);
+        }
+    GtkWidget* label = GTK_WIDGET(gtk_grid_get_child_at(GTK_GRID(grid), 0, 0));
+    gtk_label_set_text(GTK_LABEL(label), g_strdup_printf("📕 %d  📖 %d  🚩 %d", U, R, F));
+    }
 }
+
+
 
 void activate(GtkApplication* app, gpointer userData) {
     GtkWidget* window;
-    GtkWidget* grid;
     do {
         printf("Enter the board length (N): ");
         if (scanf("%d", &N) != 1 || N < 5) {
-            printf("Input is not valid! Please enter a number greater than or equal to 5.\n");
+            printf("Input is not valid! Please enter a number greater than or equal to 5!\n");
             while (getchar() != '\n');
         }
     } while (N < 5);
@@ -48,7 +76,7 @@ void activate(GtkApplication* app, gpointer userData) {
     do {
         printf("Enter the board width (M): ");
         if (scanf("%d", &M) != 1 || M < 5) {
-            printf("Input is not valid! Please enter a number greater than or equal to 5.\n");
+            printf("Input is not valid! Please enter a number greater than or equal to 5!\n");
             while (getchar() != '\n');
         }
     } while (M < 5);
@@ -56,14 +84,24 @@ void activate(GtkApplication* app, gpointer userData) {
     do {
         printf("Enter the bomb count (B): ");
         if (scanf("%d", &B) != 1 || B < M * N / 10 || B > M * N / 5) {
-            printf("Input is not valid! Please enter a valid number (M * N / 10 <= B <= M * N / 5).\n");
+            printf("Input is not valid! Please enter a valid number (M * N / 10 <= B <= M * N / 5)!\n");
             while (getchar() != '\n');
         }
     } while (B < M * N / 10 || B > M * N / 5);
 
-    printf("Board length: %d, Board width: %d, Bomb count: %d\n", N, M, B);
+    do {
+        printf("Enter the flag count (F): ");
+        if (scanf("%d", &F) != 1 || F < 0 || F > B) {
+            printf("Input is not valid! Please enter a number (0 <= F <= B)!\n");
+            while (getchar() != '\n');
+        }
+    } while (F < 0 || F > B);
 
-    showInfoDialog("The source code can be found at:\nhttps://github.com/UMMAN2005/minesweeper\
+    printf("Board length: %d, Board width: %d, Bomb count: %d, Flag count: %d\n", N, M, B, F);
+    U = N * M;
+    R = 0;
+
+    showInfoDialog("The source code can be found at:\nhttps://github.com/UMMAN2005/GTK-Project_minesweeper\
     \n\nIf you want to change the source code, please send a pull request.");
 
     window = gtk_application_window_new(app);
@@ -73,11 +111,11 @@ void activate(GtkApplication* app, gpointer userData) {
     grid = gtk_grid_new();
     gtk_container_add(GTK_CONTAINER(window), grid);
 
-    GtkWidget* label = gtk_label_new("Good Luck!!!");
+    GtkWidget* label = gtk_label_new(g_strdup_printf("📕 %d  📖 %d  🚩 %d", U, R, F));
     gtk_widget_set_hexpand(label, TRUE);
     gtk_widget_set_halign(label, GTK_ALIGN_CENTER);
-
-    gtk_grid_attach(GTK_GRID(grid), label, 0, 0, N, 3);
+    gtk_style_context_add_class(gtk_widget_get_style_context(label), "area_label");
+    gtk_grid_attach(GTK_GRID(grid), label, 0, 0, N, 1);
 
     buttons = (GtkWidget***)malloc(N * sizeof(GtkWidget**));
     for (int i = 0; i < N; i++) {
@@ -88,14 +126,16 @@ void activate(GtkApplication* app, gpointer userData) {
             gtk_widget_set_size_request(buttons[i][j], 50, 50);
             gtk_style_context_add_class(gtk_widget_get_style_context(buttons[i][j]), "area_button");
             setColor(buttons, NULL);
-            g_signal_connect(buttons[i][j], "clicked", G_CALLBACK(buttonClicked), GINT_TO_POINTER(i * M + j));
-            gtk_grid_attach(GTK_GRID(grid), buttons[i][j], i, j + 3, 1, 1);
+            g_signal_connect(buttons[i][j], "button-press-event", G_CALLBACK(buttonClicked), GINT_TO_POINTER(i * M + j));
+            gtk_grid_attach(GTK_GRID(grid), buttons[i][j], i, j + 1, 1, 1);
         }
     }
 
     initializeArrays();
     plantBombs();
     countTouchingSquares();
+
+    startTime = clock();
 
     gtk_widget_show_all(window);
 }
@@ -118,26 +158,30 @@ void revealSquare(int row, int col) {
         char label[2];
         sprintf(label, "%d", board[row][col]);
         if (strcmp(label, "1\0") == 0)
-        playAudio(mp3FilePath1);
+            playAudio(mp3FilePath1);
         else if (strcmp(label, "2\0") == 0)
-        playAudio(mp3FilePath2);
+            playAudio(mp3FilePath2);
         else if (strcmp(label, "3\0") == 0)
-        playAudio(mp3FilePath3);
+            playAudio(mp3FilePath3);
         else if (strcmp(label, "4\0") == 0)
-        playAudio(mp3FilePath4);
+            playAudio(mp3FilePath4);
         else if (strcmp(label, "5\0") == 0)
-        playAudio(mp3FilePath5);
+            playAudio(mp3FilePath5);
         else if (strcmp(label, "6\0") == 0)
-        playAudio(mp3FilePath6);
+            playAudio(mp3FilePath6);
         else if (strcmp(label, "7\0") == 0)
-        playAudio(mp3FilePath7);
+            playAudio(mp3FilePath7);
         else if (strcmp(label, "8\0") == 0)
-        playAudio(mp3FilePath8);
+            playAudio(mp3FilePath8);
         gtk_button_set_label(GTK_BUTTON(button), label);
+        U--;
+        R++;
+        checkWin();
     }
 
     gtk_widget_set_sensitive(button, FALSE);
 }
+
 
 void revealAllBombs() {
     for (int i = 0; i < N; i++) {
@@ -158,7 +202,8 @@ void revealEmptySquares(int row, int col) {
 
     GtkWidget* button = GTK_WIDGET(buttons[row][col]);
 
-    if (gtk_widget_get_sensitive(button) == FALSE) {
+    if (gtk_widget_get_sensitive(button) == FALSE || 
+    gtk_style_context_has_class(gtk_widget_get_style_context(button), "right-clicked")) {
         return;
     }
 
@@ -166,6 +211,9 @@ void revealEmptySquares(int row, int col) {
 
     if (board[row][col] == 0) {
         gtk_button_set_label(GTK_BUTTON(button), "");
+        U--;
+        R++;
+        checkWin();
 
         revealEmptySquares(row - 1, col);
         revealEmptySquares(row + 1, col);
@@ -179,8 +227,12 @@ void revealEmptySquares(int row, int col) {
         char label[2];
         sprintf(label, "%d", board[row][col]);
         gtk_button_set_label(GTK_BUTTON(button), label);
+        U--;
+        R++;
+        checkWin();
     }
 }
+
 
 void initializeArrays() {
     board = (int **)malloc(N * sizeof(int *));
@@ -274,9 +326,14 @@ void showResultDialog(const char* message) {
 
     if (result == 1) {
         restartGame();
+        return;
     } else if (result == 2) {
         quitApplication();
     }
+    endTime = clock();
+
+    double elapsedTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
+    g_print("Elapsed Time: %.2f seconds\n", elapsedTime);
 }
 
 void showInfoDialog(const char* infoMessage) {
@@ -312,6 +369,15 @@ void setColor(GtkWidget*** widgets, gpointer userData) {
 
         gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), 
             GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_USER);
+    }
+}
+
+void checkWin() {
+    if (U == B) {
+        char* text = (char*)malloc(100);
+        sprintf(text, "You Won! Congratulations! 🎉\n\t    Restart count: %d", restartCount);
+        playAudio(mp3FilePathWin);
+        showResultDialog(text);
     }
 }
 

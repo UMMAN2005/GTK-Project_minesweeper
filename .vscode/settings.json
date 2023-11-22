@@ -1,7 +1,10 @@
 {
     "cSpell.words": [
         "GINT",
-        "gpointer"
+        "gpointer",
+        "halign",
+        "hexpand",
+        "unflag"
     ],
     "C_Cpp.errorSquiggles": "disabled"
 }
