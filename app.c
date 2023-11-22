@@ -61,8 +61,6 @@ void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData) 
     }
 }
 
-
-
 void activate(GtkApplication* app, gpointer userData) {
     GtkWidget* window;
     do {
@@ -134,12 +132,11 @@ void activate(GtkApplication* app, gpointer userData) {
     initializeArrays();
     plantBombs();
     countTouchingSquares();
-
+    if (restartCount == 0)
     startTime = clock();
 
     gtk_widget_show_all(window);
 }
-
 
 void revealSquare(int row, int col) {
     GtkWidget* button = GTK_WIDGET(buttons[row][col]);
@@ -181,7 +178,6 @@ void revealSquare(int row, int col) {
 
     gtk_widget_set_sensitive(button, FALSE);
 }
-
 
 void revealAllBombs() {
     for (int i = 0; i < N; i++) {
@@ -232,7 +228,6 @@ void revealEmptySquares(int row, int col) {
         checkWin();
     }
 }
-
 
 void initializeArrays() {
     board = (int **)malloc(N * sizeof(int *));
@@ -326,14 +321,13 @@ void showResultDialog(const char* message) {
 
     if (result == 1) {
         restartGame();
-        return;
     } else if (result == 2) {
         quitApplication();
-    }
-    endTime = clock();
+        endTime = clock();
 
-    double elapsedTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
-    g_print("Elapsed Time: %.2f seconds\n", elapsedTime);
+        double elapsedTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
+        g_print("Elapsed Time: %.2f seconds\n", elapsedTime);
+    }
 }
 
 void showInfoDialog(const char* infoMessage) {
@@ -347,7 +341,11 @@ void showInfoDialog(const char* infoMessage) {
 }
 
 void restartGame() {
+    cleanup();
     restartCount++;
+    U = N * M;
+    R = 0;
+    F = 0; 
     GtkWidget* currentWindow = GTK_WIDGET(gtk_application_get_active_window(app));
     gtk_widget_destroy(currentWindow);
     activate(app, NULL);
@@ -376,6 +374,8 @@ void checkWin() {
     if (U == B) {
         char* text = (char*)malloc(100);
         sprintf(text, "You Won! Congratulations! 🎉\n\t    Restart count: %d", restartCount);
+        GtkWidget* label = GTK_WIDGET(gtk_grid_get_child_at(GTK_GRID(grid), 0, 0));
+        gtk_label_set_text(GTK_LABEL(label), g_strdup_printf("📕 %d  📖 %d  🚩 %d", U, R, F));
         playAudio(mp3FilePathWin);
         showResultDialog(text);
     }
