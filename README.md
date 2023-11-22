@@ -18,6 +18,12 @@ Welcome to Minesweeper, a classic game implemented in C using GTK for the graphi
 
 7. **Dialog Boxes:** Informative dialog boxes provide messages for game outcomes, encouraging the player to restart or quit.
 
+8. **Flags** Better game experience with flags.
+
+9. **Situation Label** With the label on the top, understanding your situation is excellent.
+
+10. **Fun Emojis** Visual support to emojis
+
 ## Getting Started
 
 To play Minesweeper, follow these steps:
