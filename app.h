@@ -9,9 +9,12 @@
 #include <glib.h>
 #include <ctype.h>
 
+extern GtkApplication* app;
+
 void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData);
 void activate(GtkApplication* app, gpointer userData);
 void revealSquare(int row, int col);
+void revealNumbers(char label[2], int row, int col);
 void revealAllBombs();
 void revealEmptySquares(int row, int col);
 void initializeArrays();
@@ -25,6 +28,7 @@ void restartGame();
 void quitApplication();
 void setColor(GtkWidget*** widgets, gpointer userData);
 void checkWin();
+void startGame();
 void cleanup();
 
 

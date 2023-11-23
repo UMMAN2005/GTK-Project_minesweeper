@@ -1,4 +1,5 @@
 #include "app.h"
+GtkApplication* app;
 
 int main(int argc, char** argv) {
     int status;

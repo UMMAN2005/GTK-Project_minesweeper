@@ -6,8 +6,7 @@
 
 .area_button label {
     font-size: 28px;
-    background-color: cyan;
-    color: darkslateblue;
+    background-color: antiquewhite;
 }
 
 .right-clicked {
@@ -25,3 +24,38 @@
     padding: 20px;
 }
 
+.one label {
+    color: blue;
+}
+
+.two label {
+    color: darkgreen;
+}
+
+.three label {
+    color: red;
+}
+
+.four label {
+    color: purple;
+}
+
+.five label {
+    color: yellow;
+}
+
+.six label {
+    color: pink; /*lightblue in real game*/
+}
+
+.seven label {
+    color: brown;
+}
+
+.eight label {
+    color: gray;
+}
+
+.bomb label {
+    color:black;
+}

@@ -2,15 +2,18 @@
 #include <pthread.h>
 
 GtkWidget*** buttons;
-GtkApplication* app;
 int restartCount = 0;
 int N, M, B, F, U, R;
 int** board;
 int* bombsArray;
+gboolean firstPlay;
+int tempRow = -1;
+int tempCol = -1;
 clock_t startTime;
 clock_t endTime;
 GtkCssProvider* cssProvider = NULL;
 GtkWidget* grid;
+GtkWidget* window;
 
 struct ThreadData {
     const char* mp3FilePath;
@@ -54,7 +57,17 @@ void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData) 
         gtk_label_set_text(GTK_LABEL(label), g_strdup_printf("📕 %d  📖 %d  🚩 %d", U, R, F));
     } else if (event->type == GDK_BUTTON_PRESS && event->button == 1) {
         if (!gtk_style_context_has_class(context, "right-clicked")) {
-            revealSquare(row, col);
+            if (firstPlay && board[row][col] == -1) {
+                tempRow = row;
+                tempCol = col;
+                cleanup();
+                U = N * M;
+                R = 0;
+                startGame();
+            } else {
+                firstPlay = FALSE;
+                revealSquare(row, col);
+            }
         }
     GtkWidget* label = GTK_WIDGET(gtk_grid_get_child_at(GTK_GRID(grid), 0, 0));
     gtk_label_set_text(GTK_LABEL(label), g_strdup_printf("📕 %d  📖 %d  🚩 %d", U, R, F));
@@ -62,7 +75,6 @@ void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData) 
 }
 
 void activate(GtkApplication* app, gpointer userData) {
-    GtkWidget* window;
     do {
         printf("Enter the board length (N): ");
         if (scanf("%d", &N) != 1 || N < 5) {
@@ -128,7 +140,11 @@ void activate(GtkApplication* app, gpointer userData) {
             gtk_grid_attach(GTK_GRID(grid), buttons[i][j], i, j + 1, 1, 1);
         }
     }
+    startGame();
+}
 
+void startGame() {
+    firstPlay = TRUE;
     initializeArrays();
     plantBombs();
     countTouchingSquares();
@@ -136,13 +152,17 @@ void activate(GtkApplication* app, gpointer userData) {
     startTime = clock();
 
     gtk_widget_show_all(window);
+    if (tempCol >= 0 && tempRow >= 0)
+    revealSquare(tempRow, tempCol);    
 }
 
 void revealSquare(int row, int col) {
     GtkWidget* button = GTK_WIDGET(buttons[row][col]);
+    GtkStyleContext* context = gtk_widget_get_style_context(button);
 
     if (board[row][col] == -1) {
         playAudio(mp3FilePath_1);
+        gtk_style_context_add_class(context, "bomb");
         revealAllBombs();
         char* text = (char*)malloc(100);
         sprintf(text, "Game Over! You clicked on a bomb. Try again!\n\t\t\t  Restart count: %d", restartCount);
@@ -154,23 +174,7 @@ void revealSquare(int row, int col) {
     } else {
         char label[2];
         sprintf(label, "%d", board[row][col]);
-        if (strcmp(label, "1\0") == 0)
-            playAudio(mp3FilePath1);
-        else if (strcmp(label, "2\0") == 0)
-            playAudio(mp3FilePath2);
-        else if (strcmp(label, "3\0") == 0)
-            playAudio(mp3FilePath3);
-        else if (strcmp(label, "4\0") == 0)
-            playAudio(mp3FilePath4);
-        else if (strcmp(label, "5\0") == 0)
-            playAudio(mp3FilePath5);
-        else if (strcmp(label, "6\0") == 0)
-            playAudio(mp3FilePath6);
-        else if (strcmp(label, "7\0") == 0)
-            playAudio(mp3FilePath7);
-        else if (strcmp(label, "8\0") == 0)
-            playAudio(mp3FilePath8);
-        gtk_button_set_label(GTK_BUTTON(button), label);
+        revealNumbers(label, row, col);
         U--;
         R++;
         checkWin();
@@ -184,11 +188,51 @@ void revealAllBombs() {
         for (int j = 0; j < M; j++) {
             if (board[i][j] == -1) {
                 GtkWidget* button = GTK_WIDGET(buttons[i][j]);
+                GtkStyleContext* context = gtk_widget_get_style_context(button);
+                gtk_style_context_add_class(context, "bomb");
                 gtk_button_set_label(GTK_BUTTON(button), "💣");
                 gtk_widget_set_sensitive(button, FALSE);
             }
         }
     }
+}
+
+void revealNumbers(char label[2], int row, int col) {
+    GtkWidget* button = GTK_WIDGET(buttons[row][col]);
+    GtkStyleContext* context = gtk_widget_get_style_context(button);
+    if (strcmp(label, "1\0") == 0) {
+        playAudio(mp3FilePath1);
+        gtk_style_context_add_class(context, "one");
+    }
+    else if (strcmp(label, "2\0") == 0) {
+        playAudio(mp3FilePath2);
+        gtk_style_context_add_class(context, "two");
+    }
+    else if (strcmp(label, "3\0") == 0) {
+        playAudio(mp3FilePath3);
+        gtk_style_context_add_class(context, "three");
+    }
+    else if (strcmp(label, "4\0") == 0) {
+        playAudio(mp3FilePath4);
+        gtk_style_context_add_class(context, "four");
+    }
+    else if (strcmp(label, "5\0") == 0) {
+        playAudio(mp3FilePath5);
+        gtk_style_context_add_class(context, "five");
+    }
+    else if (strcmp(label, "6\0") == 0) {
+        playAudio(mp3FilePath6);
+        gtk_style_context_add_class(context, "six");
+    }
+    else if (strcmp(label, "7\0") == 0) {
+        playAudio(mp3FilePath7);
+        gtk_style_context_add_class(context, "seven");
+    }
+    else if (strcmp(label, "8\0") == 0) {
+        playAudio(mp3FilePath8);
+        gtk_style_context_add_class(context, "eight");
+    }  
+    gtk_button_set_label(GTK_BUTTON(button), label);
 }
 
 void revealEmptySquares(int row, int col) {
@@ -197,9 +241,10 @@ void revealEmptySquares(int row, int col) {
     }
 
     GtkWidget* button = GTK_WIDGET(buttons[row][col]);
+    GtkStyleContext* context = gtk_widget_get_style_context(button);
 
     if (gtk_widget_get_sensitive(button) == FALSE || 
-    gtk_style_context_has_class(gtk_widget_get_style_context(button), "right-clicked")) {
+        gtk_style_context_has_class(gtk_widget_get_style_context(button), "right-clicked")) {
         return;
     }
 
@@ -222,6 +267,23 @@ void revealEmptySquares(int row, int col) {
     } else if (board[row][col] > 0) {
         char label[2];
         sprintf(label, "%d", board[row][col]);
+        if (strcmp(label, "1\0") == 0)
+            gtk_style_context_add_class(context, "one");
+        else if (strcmp(label, "2\0") == 0)
+            gtk_style_context_add_class(context, "two");
+        else if (strcmp(label, "3\0") == 0)
+            gtk_style_context_add_class(context, "three");
+        else if (strcmp(label, "4\0") == 0)
+            gtk_style_context_add_class(context, "four");
+        else if (strcmp(label, "5\0") == 0)
+            gtk_style_context_add_class(context, "five");
+        else if (strcmp(label, "6\0") == 0)
+            gtk_style_context_add_class(context, "six");
+        else if (strcmp(label, "7\0") == 0)
+            gtk_style_context_add_class(context, "seven");
+        else if (strcmp(label, "8\0") == 0)
+            gtk_style_context_add_class(context, "eight");
+
         gtk_button_set_label(GTK_BUTTON(button), label);
         U--;
         R++;
