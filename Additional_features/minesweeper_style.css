@@ -1,0 +1,61 @@
+.area_button {
+    background-image: none;
+    background-color: rgb(0, 255, 81);
+    padding: 0px;
+}
+
+.area_button label {
+    font-size: 28px;
+    background-color: antiquewhite;
+}
+
+.right-clicked {
+    background-image: none;
+    background-color: red;
+    padding: 0px;
+}
+
+.area_label {
+    background-image: none;
+    background-color: darkgreen;
+    color: white;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 40px;
+    padding: 20px;
+}
+
+.one label {
+    color: blue;
+}
+
+.two label {
+    color: darkgreen;
+}
+
+.three label {
+    color: red;
+}
+
+.four label {
+    color: purple;
+}
+
+.five label {
+    color: yellow;
+}
+
+.six label {
+    color: pink; /*lightblue in real game*/
+}
+
+.seven label {
+    color: brown;
+}
+
+.eight label {
+    color: gray;
+}
+
+.bomb label {
+    color:black;
+}
