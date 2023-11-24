@@ -8,9 +8,13 @@
 #include <time.h>
 #include <glib.h>
 #include <ctype.h>
+#include <unistd.h>
+#include <time.h>
 
 extern GtkApplication* app;
 
+void printTitle();
+void printSlowly(const char *str);
 void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData);
 void activate(GtkApplication* app, gpointer userData);
 void revealSquare(int row, int col);
@@ -29,6 +33,7 @@ void quitApplication();
 void setColor(GtkWidget*** widgets, gpointer userData);
 void checkWin();
 void startGame();
+void clearScreen();
 void cleanup();
 
 

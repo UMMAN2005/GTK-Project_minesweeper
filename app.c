@@ -34,6 +34,36 @@ const char* mp3FilePathFlag = ".\\Audio_files\\flag.mp3";
 const char* mp3FilePathUnFlag = ".\\Audio_files\\unflag.mp3";
 const char* mp3FilePathWin = ".\\Audio_files\\win.mp3";
 
+void printTitle() {
+    printSlowly(" _______ _________ _        _______  _______           _______  _______  _______  _______  _______ \n");
+    printSlowly("(       )\\__   __/( (    /|(  ____ \\(  ____ \\|\\     /|(  ____ \\(  ____ \\(  ____ )(  ____ \\(  ____ )\n");
+    printSlowly("| () () |   ) (   |  \\  ( || (    \\/| (    \\/| )   ( || (    \\/| (    \\/| (    )|| (    \\/| (    )|\n");
+    printSlowly("| || || |   | |   |   \\ | || (__    | (_____ | | _ | || (__    | (__    | (____)|| (__    | (____)|\n");
+    printSlowly("| |(_)| |   | |   | (\\ \\) ||  __)   (_____  )| |( )| ||  __)   |  __)   |  _____)|  __)   |     __)\n");
+    printSlowly("| |   | |   | |   | | \\   || (            ) || || || || (      | (      | (      | (      | (\\ (   \n");
+    printSlowly("| )   ( |___) (___| )  \\  || (____/\\/\\____) || () () || (____/\\| (____/\\| )      | (____/\\| ) \\ \\__\n");
+    printSlowly("|/     \\|\\_______/|/    )_)(_______/\\_______)(_______)(_______/(_______/|/       (_______/|/   \\__/\n");
+}
+
+void printSlowly(const char *str) {
+    while (*str) {
+        putchar(*str);
+        fflush(stdout);
+
+        struct timespec delay;
+        delay.tv_sec = 0;
+        delay.tv_nsec = 1000000;
+
+        nanosleep(&delay, NULL);
+
+        str++;
+    }
+    putchar('\n');
+    fflush(stdout);
+}
+
+
+
 void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData) {
     int index = GPOINTER_TO_INT(userData);
     int row = index / M;
@@ -75,6 +105,8 @@ void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData) 
 }
 
 void activate(GtkApplication* app, gpointer userData) {
+    clearScreen();
+    printTitle();
     do {
         printf("Enter the board length (N): ");
         if (scanf("%d", &N) != 1 || N < 5) {
@@ -441,6 +473,14 @@ void checkWin() {
         playAudio(mp3FilePathWin);
         showResultDialog(text);
     }
+}
+
+void clearScreen() {
+#ifdef _WIN32
+    system("cls");
+#else
+    printf("\033[2J\033[1;1H");
+#endif
 }
 
 void cleanup() {
