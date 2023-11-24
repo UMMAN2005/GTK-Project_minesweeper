@@ -105,8 +105,10 @@ void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData) 
 }
 
 void activate(GtkApplication* app, gpointer userData) {
-    clearScreen();
-    printTitle();
+    if (restartCount == 0) {
+        clearScreen();
+        printTitle();
+    }
     do {
         printf("Enter the board length (N): ");
         if (scanf("%d", &N) != 1 || N < 5) {
