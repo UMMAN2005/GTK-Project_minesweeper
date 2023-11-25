@@ -9,7 +9,7 @@ SRCS = main.c app.c
 all: ${PROG}
 
 ${PROG}: ${SRCS:.c=.o}
-	${CC} -o ${PROG} ${SRCS:.c=.o} ${CFLAGS} ${LIBS}
+	${CC} -g -o ${PROG} ${SRCS:.c=.o} ${CFLAGS} ${LIBS}
 
 .c.o:
 	${CC} ${CFLAGS} -c $<

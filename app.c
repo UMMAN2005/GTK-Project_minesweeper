@@ -63,7 +63,6 @@ void printSlowly(const char *str) {
 }
 
 
-
 void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData) {
     int index = GPOINTER_TO_INT(userData);
     int row = index / M;
@@ -87,13 +86,14 @@ void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData) 
         gtk_label_set_text(GTK_LABEL(label), g_strdup_printf("📕 %d  📖 %d  🚩 %d", U, R, F));
     } else if (event->type == GDK_BUTTON_PRESS && event->button == 1) {
         if (!gtk_style_context_has_class(context, "right-clicked")) {
-            if (firstPlay && board[row][col] == -1) {
+            if (firstPlay && board[row][col] != 0) {
                 tempRow = row;
                 tempCol = col;
-                cleanup();
+                // cleanup();
                 U = N * M;
                 R = 0;
                 startGame();
+                return;
             } else {
                 firstPlay = FALSE;
                 revealSquare(row, col);
@@ -185,9 +185,7 @@ void startGame() {
     if (restartCount == 0)
     startTime = clock();
 
-    gtk_widget_show_all(window);
-    if (tempCol >= 0 && tempRow >= 0)
-    revealSquare(tempRow, tempCol);    
+    gtk_widget_show_all(window);  
 }
 
 void revealSquare(int row, int col) {
