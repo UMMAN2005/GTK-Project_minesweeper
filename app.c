@@ -1,6 +1,12 @@
 #include "app.h"
 #include <pthread.h>
 
+#define COLOR_RED "\x1b[31m"
+#define COLOR_GREEN "\x1b[32m"
+#define COLOR_YELLOW "\x1b[33m"
+#define COLOR_BLUE "\x1b[34m"
+#define COLOR_RESET "\x1b[0m"
+
 GtkWidget*** buttons;
 int restartCount = 0;
 int N, M, B, F, U, R;
@@ -35,6 +41,7 @@ const char* mp3FilePathUnFlag = ".\\Audio_files\\unflag.mp3";
 const char* mp3FilePathWin = ".\\Audio_files\\win.mp3";
 
 void printTitle() {
+    printf(COLOR_GREEN);
     printSlowly(" _______ _________ _        _______  _______           _______  _______  _______  _______  _______ \n");
     printSlowly("(       )\\__   __/( (    /|(  ____ \\(  ____ \\|\\     /|(  ____ \\(  ____ \\(  ____ )(  ____ \\(  ____ )\n");
     printSlowly("| () () |   ) (   |  \\  ( || (    \\/| (    \\/| )   ( || (    \\/| (    \\/| (    )|| (    \\/| (    )|\n");
@@ -43,6 +50,7 @@ void printTitle() {
     printSlowly("| |   | |   | |   | | \\   || (            ) || || || || (      | (      | (      | (      | (\\ (   \n");
     printSlowly("| )   ( |___) (___| )  \\  || (____/\\/\\____) || () () || (____/\\| (____/\\| )      | (____/\\| ) \\ \\__\n");
     printSlowly("|/     \\|\\_______/|/    )_)(_______/\\_______)(_______)(_______/(_______/|/       (_______/|/   \\__/\n");
+    printf(COLOR_RESET);
 }
 
 void printSlowly(const char *str) {
@@ -61,6 +69,7 @@ void printSlowly(const char *str) {
     putchar('\n');
     fflush(stdout);
 }
+
 
 
 void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData) {
@@ -89,7 +98,6 @@ void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData) 
             if (firstPlay && board[row][col] != 0) {
                 tempRow = row;
                 tempCol = col;
-                // cleanup();
                 U = N * M;
                 R = 0;
                 startGame();
@@ -110,43 +118,44 @@ void activate(GtkApplication* app, gpointer userData) {
         printTitle();
     }
     do {
-        printf("Enter the board length (N): ");
+        printf(COLOR_YELLOW "Enter the board length (N): " COLOR_RESET);
         if (scanf("%d", &N) != 1 || N < 5) {
-            printf("Input is not valid! Please enter a number greater than or equal to 5!\n");
+            printf(COLOR_RED "Input is not valid! " COLOR_RESET "Please enter a number greater than or equal to 5.\n");
             while (getchar() != '\n');
         }
     } while (N < 5);
 
     do {
-        printf("Enter the board width (M): ");
+        printf(COLOR_YELLOW "Enter the board width (M): " COLOR_RESET);
         if (scanf("%d", &M) != 1 || M < 5) {
-            printf("Input is not valid! Please enter a number greater than or equal to 5!\n");
+            printf(COLOR_RED "Input is not valid! " COLOR_RESET "Please enter a number greater than or equal to 5.\n");
             while (getchar() != '\n');
         }
     } while (M < 5);
 
     do {
-        printf("Enter the bomb count (B): ");
+        printf(COLOR_YELLOW "Enter the bomb count (B): " COLOR_RESET);
         if (scanf("%d", &B) != 1 || B < M * N / 10 || B > M * N / 5) {
-            printf("Input is not valid! Please enter a valid number (M * N / 10 <= B <= M * N / 5)!\n");
+            printf(COLOR_RED "Input is not valid! " COLOR_RESET "Please enter a valid number (M * N / 10 <= B <= M * N / 5).\n");
             while (getchar() != '\n');
         }
     } while (B < M * N / 10 || B > M * N / 5);
 
     do {
-        printf("Enter the flag count (F): ");
+        printf(COLOR_YELLOW "Enter the flag count (F): " COLOR_RESET);
         if (scanf("%d", &F) != 1 || F < 0 || F > B) {
-            printf("Input is not valid! Please enter a number (0 <= F <= B)!\n");
+            printf(COLOR_RED "Input is not valid! " COLOR_RESET "Please enter a number (0 <= F <= B).\n");
             while (getchar() != '\n');
         }
     } while (F < 0 || F > B);
 
-    printf("Board length: %d, Board width: %d, Bomb count: %d, Flag count: %d\n", N, M, B, F);
+    printf(COLOR_BLUE "Board length: %d, Board width: %d, Bomb count: %d, Flag count: %d\n" COLOR_RESET, N, M, B, F);
     U = N * M;
     R = 0;
-
-    showInfoDialog("The source code can be found at:\nhttps://github.com/UMMAN2005/GTK-Project_minesweeper\
+    char info[256];
+    sprintf(info, "The source code can be found at:\nhttps://github.com/UMMAN2005/GTK-Project_minesweeper\
     \n\nIf you want to change the source code, please send a pull request.");
+    showInfoDialog(info);
 
     window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(window), "minesweeper");
@@ -420,7 +429,7 @@ void showResultDialog(const char* message) {
         endTime = clock();
 
         double elapsedTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
-        g_print("Elapsed Time: %.2f seconds\n", elapsedTime);
+        g_print(COLOR_BLUE "Elapsed Time: %.2f seconds\n" COLOR_RESET, elapsedTime);
     }
 }
 
@@ -455,7 +464,7 @@ void setColor(GtkWidget*** widgets, gpointer userData) {
         GError* error = NULL;
 
         if (!gtk_css_provider_load_from_path(cssProvider, "minesweeper_style.css", &error)) {
-            g_error("Error loading CSS file: %s", error->message);
+            g_error(COLOR_RED "Error loading CSS file: %s" COLOR_RESET , error->message);
             g_clear_error(&error);
         }
 
@@ -467,7 +476,8 @@ void setColor(GtkWidget*** widgets, gpointer userData) {
 void checkWin() {
     if (U == B) {
         char* text = (char*)malloc(100);
-        sprintf(text, "You Won! Congratulations! 🎉\n\t    Restart count: %d", restartCount);
+        sprintf(text, COLOR_GREEN "You Won! Congratulations! 🎉\n\t" 
+        COLOR_RESET COLOR_BLUE "   Restart count: %d" COLOR_RESET, restartCount);
         GtkWidget* label = GTK_WIDGET(gtk_grid_get_child_at(GTK_GRID(grid), 0, 0));
         gtk_label_set_text(GTK_LABEL(label), g_strdup_printf("📕 %d  📖 %d  🚩 %d", U, R, F));
         playAudio(mp3FilePathWin);
