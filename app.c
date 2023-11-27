@@ -229,7 +229,10 @@ void revealAllBombs(char emoji[2]) {
             if (board[i][j] == -1) {
                 GtkWidget* button = GTK_WIDGET(buttons[i][j]);
                 GtkStyleContext* context = gtk_widget_get_style_context(button);
+                if (strcmp(emoji, "💣") == 0)
                 gtk_style_context_add_class(context, "bomb");
+                else if (strcmp(emoji, "🏵️") == 0)     
+                gtk_style_context_add_class(context, "flower");
                 gtk_button_set_label(GTK_BUTTON(button), emoji);
                 gtk_widget_set_sensitive(button, FALSE);
             }
@@ -477,6 +480,11 @@ void checkWin() {
         revealAllBombs("🏵️");
         char* text = (char*)malloc(100);
         sprintf(text, "You Won! Congratulations! 🎉\n\t   Restart count: %d", restartCount);
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                gtk_style_context_add_class(gtk_widget_get_style_context(buttons[i][j]), "win");
+            }
+        }
         GtkWidget* label = GTK_WIDGET(gtk_grid_get_child_at(GTK_GRID(grid), 0, 0));
         gtk_label_set_text(GTK_LABEL(label), g_strdup_printf("📕 %d  📖 %d  🚩 %d", U, R, F));
         playAudio(mp3FilePathWin);
