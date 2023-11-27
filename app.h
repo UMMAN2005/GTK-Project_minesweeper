@@ -19,7 +19,7 @@ void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData);
 void activate(GtkApplication* app, gpointer userData);
 void revealSquare(int row, int col);
 void revealNumbers(char label[2], int row, int col);
-void revealAllBombs();
+void revealAllBombs(char emoji[2]);
 void revealEmptySquares(int row, int col);
 void initializeArrays();
 void plantBombs();

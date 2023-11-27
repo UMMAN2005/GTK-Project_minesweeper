@@ -95,17 +95,16 @@ void buttonClicked(GtkWidget* widget, GdkEventButton* event, gpointer userData) 
         gtk_label_set_text(GTK_LABEL(label), g_strdup_printf("📕 %d  📖 %d  🚩 %d", U, R, F));
     } else if (event->type == GDK_BUTTON_PRESS && event->button == 1) {
         if (!gtk_style_context_has_class(context, "right-clicked")) {
-            if (firstPlay && board[row][col] != 0) {
+            while (firstPlay && board[row][col] != 0) {
                 tempRow = row;
                 tempCol = col;
                 U = N * M;
                 R = 0;
                 startGame();
                 return;
-            } else {
-                firstPlay = FALSE;
-                revealSquare(row, col);
             }
+            firstPlay = FALSE;
+            revealSquare(row, col);
         }
     GtkWidget* label = GTK_WIDGET(gtk_grid_get_child_at(GTK_GRID(grid), 0, 0));
     gtk_label_set_text(GTK_LABEL(label), g_strdup_printf("📕 %d  📖 %d  🚩 %d", U, R, F));
@@ -204,7 +203,7 @@ void revealSquare(int row, int col) {
     if (board[row][col] == -1) {
         playAudio(mp3FilePath_1);
         gtk_style_context_add_class(context, "bomb");
-        revealAllBombs();
+        revealAllBombs("💣");
         char* text = (char*)malloc(100);
         sprintf(text, "Game Over! You clicked on a bomb. Try again!\n\t\t\t  Restart count: %d", restartCount);
         showResultDialog(text);
@@ -224,14 +223,14 @@ void revealSquare(int row, int col) {
     gtk_widget_set_sensitive(button, FALSE);
 }
 
-void revealAllBombs() {
+void revealAllBombs(char emoji[2]) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < M; j++) {
             if (board[i][j] == -1) {
                 GtkWidget* button = GTK_WIDGET(buttons[i][j]);
                 GtkStyleContext* context = gtk_widget_get_style_context(button);
                 gtk_style_context_add_class(context, "bomb");
-                gtk_button_set_label(GTK_BUTTON(button), "💣");
+                gtk_button_set_label(GTK_BUTTON(button), emoji);
                 gtk_widget_set_sensitive(button, FALSE);
             }
         }
@@ -475,9 +474,9 @@ void setColor(GtkWidget*** widgets, gpointer userData) {
 
 void checkWin() {
     if (U == B) {
+        revealAllBombs("🏵️");
         char* text = (char*)malloc(100);
-        sprintf(text, COLOR_GREEN "You Won! Congratulations! 🎉\n\t" 
-        COLOR_RESET COLOR_BLUE "   Restart count: %d" COLOR_RESET, restartCount);
+        sprintf(text, "You Won! Congratulations! 🎉\n\t   Restart count: %d", restartCount);
         GtkWidget* label = GTK_WIDGET(gtk_grid_get_child_at(GTK_GRID(grid), 0, 0));
         gtk_label_set_text(GTK_LABEL(label), g_strdup_printf("📕 %d  📖 %d  🚩 %d", U, R, F));
         playAudio(mp3FilePathWin);
